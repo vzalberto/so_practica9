@@ -7,8 +7,19 @@
 
 int puerto = 7200;
 
+void printIP(u_long s_addr){
+	printf("ip (u_long): %lu\n", s_addr);
+}
+
+void datagram_info(struct sockaddr_in * datagram_addr){
+	printf("Datagrama recibido\n");
+	printf("IP: %s\n", (char *)inet_ntoa(datagram_addr->sin_addr.s_addr));
+	printf("Puerto: %d\n", ntohs(datagram_addr->sin_port));
+	printf("\n");
+}
+
 int main(void){
-	struct sockaddr_in msg_to_server_addr, client_addr;
+	struct sockaddr_in msg_to_server_addr, client_addr, res_msg;
 	int s, num[2], res;
 
 	s = socket(AF_INET, SOCK_DGRAM, 0);
@@ -17,6 +28,8 @@ int main(void){
 	msg_to_server_addr.sin_family = AF_INET;
 	msg_to_server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 	msg_to_server_addr.sin_port = htons(puerto);
+
+	//printIP(msg_to_server_addr.sin_addr.s_addr);
 
 	bzero((char *)&client_addr, sizeof(client_addr));
 	client_addr.sin_family = AF_INET;
@@ -31,9 +44,11 @@ int main(void){
 	sendto(s, (char *) num, 2 * sizeof(int), 0, (struct sockaddr *) &msg_to_server_addr, sizeof(msg_to_server_addr));
 
 	printf("Esperando respuesta...\n");
-
-	recvfrom(s, (char *)&res, sizeof(int), 0, NULL, NULL);
-
+	
+	bzero((char *)&res_msg, sizeof(res_msg));
+	int n = sizeof(res_msg);
+	recvfrom(s, (char *)&res, sizeof(int), 0, (struct sockaddr *)&res_msg, &n);
+	datagram_info(&res_msg);
 	printf("2 + 5 = %d\n", res);
 
 	close(s);

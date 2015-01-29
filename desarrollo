@@ -1,0 +1,29 @@
+10.1
+inet_addr("127.0.0.1") parsea la dirección IP proporcionada en formato de octetos separados por puntos y la convierte en bytes en orden de red manejables por el sistema operativo.
+127.0.0.1 se refiere a la dirección local (localhost) para poder realizar la prueba de los programas en la misma máquina.
+
+10.1
+Imprimiendo msg_to_server_addr.sin_addr.s_addr como unsigned long tenemos el valor 16777343
+
+screen
+
+podemos convertir ese valor mediante una aplicacion web
+
+screen
+
+y obtenemos la direccion de localhost en orden de red.
+
+Nota: Para realizar esa conversion se emplea el corrimiento de bits.
+
+10.2
+Necesitamos sustituir los campos en NULL de la llamada a recvfrom con apuntadores a una estructura sockaddr_in y su longitud. Ahí se guardará la información que buscamos por parte de quien eńvía el datagrama.
+Para imprimirla, definimos la función
+
+void datagram_info(struct sockaddr_in * datagram_addr){
+	printf("Datagrama recibido\n");
+	printf("IP: %s\n", (char *)inet_ntoa(datagram_addr->sin_addr.s_addr));
+	printf("Puerto: %d\n", ntohs(datagram_addr->sin_port));
+	printf("\n");
+}
+
+que emplearemos también en el código del servidor. Nótese que hacemos una conversión inversa para el valor del puerto e IP. (funciones ntohs e inet_ntoa )
